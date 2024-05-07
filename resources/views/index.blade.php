@@ -89,17 +89,25 @@
         }
 
         function updatePasien(id) {
-            // Fungsi untuk menghandle update pasien
+            // Mengarahkan ke halaman update dengan parameter id
+            window.location.href = "/update/" + id;
         }
 
         function hapusPasien(id) {
-            // Fungsi untuk menghandle hapus pasien
+            let confirmation = confirm("Apakah Anda yakin ingin menghapus pasien ini?");
+
+            if (confirmation) {
+                // Mengarahkan ke halaman delete pasien dengan parameter id
+                window.location.href = "/delete/" + id;
+            }
         }
 
         function tambahPasien() {
-            window.location.href = "formtambah.html; // Mengarahkan ke halaman form tambah pasien"
+            // Mengarahkan ke halaman form tambah pasien
+            window.location.href = "/tambah";
         }
 
+        // Memanggil getPasien saat halaman dimuat
         window.onload = getPasien;
     </script>
 </body>
