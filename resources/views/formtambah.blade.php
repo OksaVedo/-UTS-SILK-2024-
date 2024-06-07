@@ -84,15 +84,20 @@
 
             // Kirim data ke server menggunakan AJAX
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost/silk2024-slim-main/public/pasien');
+            xhr.open('POST', 'http://localhost/silk2024-slim/public/list_pasien');
             xhr.send(formData);
 
             xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    alert('Pasien tidak berhasil ditambahkan!');
-                    // Redirect atau lakukan tindakan lain setelah berhasil menambahkan pasien
-                } else {
+                if (xhr.status == 200 || xhr.status == 201) {
                     alert('Pasien berhasil ditambahkan!');
+                    // Redirect atau lakukan tindakan lain setelah berhasil menambahkan pasien
+                    // Pengalihan ke view index
+                    window.location.href = 'index.php'; 
+                    
+                } else {
+                    alert('Pasien tidak berhasil ditambahkan!');
+                    // Pengalihan ke view index
+                    window.location.href = 'index.php'; 
                 }
             };
 

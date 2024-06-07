@@ -22,12 +22,16 @@ Route::get('/tambah', function () {
     return view('formtambah');
 });
 
-Route::get('/update', function () {
-    return view('formupdate');
+Route::get('/update/{id}', function ($id) {
+    return view('formupdate', ['id' => $id]);
 });
 
-Route::get('/delete', function () {
-    return view('formdelete');
+Route::get('/antri', function () {
+    return view('antripasien');
+});
+
+Route::get('/antrianpasien', function () {
+    return view('antrianpasien');
 });
 // Route::get('/pasien', [PatientController::class, 'index'])->name('patients.index');
 // Route::get('/patients/create', [PatientController::class, 'create'])->name('patients.create');

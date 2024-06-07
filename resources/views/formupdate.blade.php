@@ -35,7 +35,7 @@
             </div>
             <div class="form-group">
                 <label for="no_rm">Nomor Rekam Medis:</label>
-                <input type="text" class="form-control" id="no_rm" name="no_rm">
+                <input type="text" class="form-control" id="no_rm" name="no_rm" required>
             </div>
             <div class="form-group">
                 <label for="tgl_lahir">Tanggal Lahir:</label>
@@ -58,35 +58,34 @@
                 <input type="text" class="form-control" id="berat" name="berat">
             </div>
             <div class="form-group">
-                <label for="kontak_keluarga">Kontak_keluarga:</label>
+                <label for="kontak_keluarga">Kontak Keluarga:</label>
                 <input type="text" class="form-control" id="kontak_keluarga" name="kontak_keluarga">
             </div>
             <div class="form-group">
-                <label for="kontak_keluarga_hp">Kontak_keluarga_hp:</label>
+                <label for="kontak_keluarga_hp">Kontak Keluarga HP:</label>
                 <input type="text" class="form-control" id="kontak_keluarga_hp" name="kontak_keluarga_hp">
             </div>
             <div class="form-group">
-                <label for="kontak_keluarga_alamat">Kontak_keluarga_alamat:</label>
+                <label for="kontak_keluarga_alamat">Kontak Keluarga Alamat:</label>
                 <input type="text" class="form-control" id="kontak_keluarga_alamat" name="kontak_keluarga_alamat">
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button class="btn btn-primary" onclick="updateDataPasien(event)">Submit</button>
         </form>
     </div>
 
     <script>
-        // Fungsi untuk mendapatkan data pasien yang akan diedit dan mengisi formulir dengan data tersebut
         function loadDataPasien() {
             let pasienId = window.location.pathname.split('/').pop();
 
-            let xhr = new XMLHttpRequest();
-            xhr.open('GET', `http://localhost/silk2024-slim-main/public/pasien/${pasienId}`);
-            xhr.send();
-
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    let responseData = JSON.parse(xhr.responseText);
-
+            fetch(`http://localhost/silk2024-slim/public/pasien/${pasienId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(responseData => {
                     // Mengisi formulir dengan data pasien
                     document.getElementById('nama').value = responseData.nama;
                     document.getElementById('alamat').value = responseData.alamat;
@@ -102,48 +101,82 @@
                     document.getElementById('kontak_keluarga').value = responseData.kontak_keluarga;
                     document.getElementById('kontak_keluarga_hp').value = responseData.kontak_keluarga_hp;
                     document.getElementById('kontak_keluarga_alamat').value = responseData.kontak_keluarga_alamat;
-                } else {
-                    alert('Gagal memuat data pasien. Mohon coba lagi.');
-                }
-            };
-
-            xhr.onerror = function() {
-                alert('Request gagal.');
-            };
+                })
+                .catch(error => alert('Gagal memuat data pasien. Mohon coba lagi. ' + error.message));
         }
 
-        // Fungsi untuk mengirimkan data yang diperbarui ke server saat formulir disubmit
-        function updateDataPasien() {
-            let pasienId = window.location.pathname.split('/').pop();
-            let formData = new FormData(document.getElementById('formUpdatePasien'));
+        function updateDataPasien(event, retryCount = 0) {
+    event.preventDefault();
+    
+    let pasienId = window.location.pathname.split('/').pop();
+    
+    let data = {
+        nama: document.getElementById('nama').value,
+        alamat: document.getElementById('alamat').value,
+        no_hp: document.getElementById('no_hp').value,
+        jk: document.getElementById('jk').value,
+        nik: document.getElementById('nik').value,
+        no_rm: document.getElementById('no_rm').value,
+        tgl_lahir: document.getElementById('tgl_lahir').value,
+        tempat_lahir: document.getElementById('tempat_lahir').value,
+        gol_darah: document.getElementById('gol_darah').value,
+        tinggi: document.getElementById('tinggi').value,
+        berat: document.getElementById('berat').value,
+        kontak_keluarga: document.getElementById('kontak_keluarga').value,
+        kontak_keluarga_hp: document.getElementById('kontak_keluarga_hp').value,
+        kontak_keluarga_alamat: document.getElementById('kontak_keluarga_alamat').value
+    };
 
-            let updateXhr = new XMLHttpRequest();
-            updateXhr.open('PUT', `http://localhost/silk2024-slim-main/public/pasien/${pasienId}`);
-            updateXhr.send(formData);
-
-            updateXhr.onload = function() {
-                if (updateXhr.status >= 200 && updateXhr.status < 300) {
-                    alert('Data pasien berhasil diperbarui!');
-                    // Redirect ke halaman daftar pasien setelah berhasil memperbarui
-                    window.location.href = 'http://localhost/silk2024-slim-main/public/pasien';
-                } else {
-                    alert('Terjadi kesalahan. Mohon coba lagi.');
-                }
-            };
-
-            updateXhr.onerror = function() {
-                alert('Request gagal.');
-            };
+    let params = new URLSearchParams();
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            params.append(key, data[key]);
         }
+    }
 
-        // Fungsi untuk memuat data pasien saat halaman dimuat
+    console.log('Request URL:', `http://localhost/silk2024-slim/public/update_pasien/${pasienId}`);
+    console.log('Request Params:', params.toString());
+
+    fetch(`http://localhost/silk2024-slim/public/update_pasien/${pasienId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params
+    })
+    .then(response => {
+        console.log('Response Status:', response.status);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(responseData => {
+        console.log('Response Data:', responseData);
+        if (responseData.status === 'berhasil') {
+            alert('Data pasien berhasil diperbarui!');
+            window.location.href = 'index.php';
+        } else {
+            throw new Error('Terjadi kesalahan. Mohon coba lagi.');
+        }
+    })
+    .catch(error => {
+        console.error('Request gagal:', error);
+        alert('Request gagal. ' + error.message);
+
+        // Retry the request if it fails and the retry count is less than a maximum value
+        if (retryCount < 3) {
+            console.log(`Retrying... attempt #${retryCount + 1}`);
+            updateDataPasien(event, retryCount + 1);
+        } else {
+            alert('Request gagal setelah beberapa percobaan. Mohon coba lagi nanti.');
+        }
+    });
+}
+
         window.onload = function() {
             loadDataPasien();
-
-            document.getElementById('formUpdatePasien').addEventListener('submit', function(event) {
-                event.preventDefault(); // Mencegah form dari pengiriman default
-                updateDataPasien();
-            });
+            document.getElementById('formUpdatePasien').addEventListener('submit', updateDataPasien);
         };
     </script>
 </body>
